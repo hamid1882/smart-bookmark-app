@@ -21,7 +21,6 @@ Build and deploy a simple bookmark manager using **Next.js App Router**, **Supab
    ```
 
 2. **Create a Supabase project**
-
    - Go to the Supabase dashboard and create a new project.
    - Under **Authentication → Providers**, enable **Google** and configure the OAuth client.
 
@@ -57,7 +56,6 @@ Build and deploy a simple bookmark manager using **Next.js App Router**, **Supab
    ```
 
 4. **Enable Realtime on the table**
-
    - In Supabase, go to **Database → Replication (Realtime)** and enable Realtime for the `bookmarks` table.
 
 5. **Environment variables**
@@ -84,7 +82,6 @@ Build and deploy a simple bookmark manager using **Next.js App Router**, **Supab
 1. Push this repo to GitHub.
 2. Import the project into Vercel.
 3. In the Vercel project settings, add the same environment variables:
-
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
@@ -94,6 +91,12 @@ Build and deploy a simple bookmark manager using **Next.js App Router**, **Supab
 
 - All Supabase calls are made from client components using `@supabase/supabase-js` and the singleton client in `app/supabase/initialize.ts`.
 - The home page handles authentication state with `supabase.auth.getUser()` and `onAuthStateChange`, then renders either the Google sign-in card or the realtime bookmark manager.
+
+### Problems I faced and how I solved them
+
+- **Google provider not enabled**: After wiring up `signInWithOAuth`, Supabase returned `Unsupported provider: provider is not enabled`. I fixed this by enabling the Google provider in the Supabase dashboard, configuring the correct OAuth redirect URL, and saving the client ID/secret.
+- **Bookmarks failing to save**: Inserts to `bookmarks` failed with a generic error. The root cause was missing table and row-level security (RLS) policies. I created the `bookmarks` table, enabled RLS, and added select/insert/delete policies that tie rows to `auth.uid()`, which made saving and loading per-user bookmarks work.
+- **Realtime not triggering across tabs**: Initially, new bookmarks didn’t appear in a second tab. I had to explicitly enable Realtime on the `bookmarks` table in Supabase and subscribe to `postgres_changes` filtered by `user_id` on the client. After that, inserts/deletes propagated instantly between sessions.
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
