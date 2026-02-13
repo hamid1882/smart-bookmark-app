@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
+import { useEffect, useState } from "react";
+import BookmarkManager from "./components/BookmarkManager";
 import Signin from "./components/Signin";
 import { supabase } from "./supabase/initialize";
-import BookmarkManager from "./components/BookmarkManager";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
